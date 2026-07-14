@@ -156,3 +156,9 @@ dist/
 *.sqlite
 *.sqlite3
 coverage/
+
+
+data/
+*.db
+*.db-shm
+*.db-wal
