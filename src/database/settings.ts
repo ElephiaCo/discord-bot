@@ -33,7 +33,7 @@ export function setStandupTime(
     time: string,
 ): void {
     const statement = database.prepare(`
-        INSERT INTO guid_settings (guild_id, standup_time)
+        INSERT INTO guild_settings (guild_id, standup_time)
         VALUES (?, ?)
         ON CONFLICT(guild_id)
         DO UPDATE SET standup_time = excluded.standup_time

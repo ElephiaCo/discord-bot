@@ -7,7 +7,7 @@ describe("guild settings storage", () => {
     let database: StandupDatabase;
 
     beforeEach(() => {
-        database = createDatabase(":memory");
+        database = createDatabase(":memory:");
     });
 
     afterEach(() => {

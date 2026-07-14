@@ -46,6 +46,7 @@ export function getParticipants (
 ): Participant[] {
     const statement = database.prepare(`
         SELECT guild_id, user_id, joined_at
+        FROM participants
         WHERE guild_id = ?
         ORDER BY joined_at ASC
      `);
@@ -56,7 +57,7 @@ export function getParticipants (
         guildId: row.guild_id,
         userId: row.user_id,
         joinedAt: row.joined_at,
-     }));3
+     }));
 }
 
 export function isParticipant (
