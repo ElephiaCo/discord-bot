@@ -1,18 +1,19 @@
-import {Client, Events, GatewayIntentBits } from "discord.js";
+import { Client, Events, GatewayIntentBits } from "discord.js";
 import { config } from "./config";
 
-const client = new Client ({
-    intents: [GatewayIntentBits.Guilds] });
-
-client.once(Events.ClientReady, (readyClient) => {
-    console.log(`Ready! loged in as ${readyClient.user.tag}`);
+const client = new Client({
+	intents: [GatewayIntentBits.Guilds],
 });
 
-client.on(Events.Error, (error => {
-    console.error("Discord client error:", error);
-}));
+client.once(Events.ClientReady, (readyClient) => {
+	console.log(`Ready! loged in as ${readyClient.user.tag}`);
+});
+
+client.on(Events.Error, (error) => {
+	console.error("Discord client error:", error);
+});
 
 client.login(config.discordToken).catch((error: unknown) => {
-    console.error("Failed to log in to Discord:", error);
-    process.exit(1);
+	console.error("Failed to log in to Discord:", error);
+	process.exit(1);
 });
