@@ -1,80 +1,80 @@
 import type { StandupDatabase } from "./connection";
 
 interface GuildSettingsRow {
-    guild_id: string;
-    standup_channel_id: string | null;
-    standup_time: string | null;
+	guild_id: string;
+	standup_channel_id: string | null;
+	standup_time: string | null;
 }
 
 export interface GuildSettings {
-    guildId: string;
-    standupChannelId: string | null;
-    standupTime: string | null;
+	guildId: string;
+	standupChannelId: string | null;
+	standupTime: string | null;
 }
 
 export function setStandupChannel(
-    database: StandupDatabase,
-    guildId: string,
-    channelId: string,
+	database: StandupDatabase,
+	guildId: string,
+	channelId: string,
 ): void {
-    const statement = database.prepare(`
+	const statement = database.prepare(`
         INSERT INTO guild_settings (guild_id, standup_channel_id)
         VALUES (?, ?)
         ON CONFLICT(guild_id)
         DO UPDATE SET standup_channel_id = excluded.standup_channel_id
-        `)
+        `);
 
-        statement.run(guildId, channelId);
+	statement.run(guildId, channelId);
 }
 
 export function setStandupTime(
-    database: StandupDatabase,
-    guildId: string,
-    time: string,
+	database: StandupDatabase,
+	guildId: string,
+	time: string,
 ): void {
-    const statement = database.prepare(`
+	const statement = database.prepare(`
         INSERT INTO guild_settings (guild_id, standup_time)
         VALUES (?, ?)
         ON CONFLICT(guild_id)
         DO UPDATE SET standup_time = excluded.standup_time
         `);
 
-        statement.run(guildId, time);
+	statement.run(guildId, time);
 }
 
 export function getGuildSettings(
-    database: StandupDatabase,
-    guildId: string,
+	database: StandupDatabase,
+	guildId: string,
 ): GuildSettings | null {
-    const statement = database.prepare(`
+	const statement = database.prepare(`
         SELECT guild_id, standup_channel_id, standup_time
         FROM guild_settings
         WHERE guild_id = ?
         `);
-    
-    const row = statement.get(guildId) as GuildSettingsRow | undefined;
 
-    if (!row) {
-        return null;
-    }
+	const row = statement.get(guildId) as GuildSettingsRow | undefined;
 
-    return {
-        guildId: row.guild_id,
-        standupChannelId: row.standup_channel_id,
-        standupTime: row.standup_time,
-    };
+	if (!row) {
+		return null;
+	}
+
+	return {
+		guildId: row.guild_id,
+		standupChannelId: row.standup_channel_id,
+		standupTime: row.standup_time,
+	};
 }
 
 export function getStandupChannel(
-    database: StandupDatabase,
-    guildId: string,
+	database: StandupDatabase,
+	guildId: string,
 ): string | null {
-    return getGuildSettings(database, guildId)?.standupChannelId ?? null;
+	return getGuildSettings(database, guildId)?.standupChannelId ?? null;
 }
 
 export function getStandupTime(
-    database: StandupDatabase,
-    guildId: string,
+	database: StandupDatabase,
+	guildId: string,
 ): string | null {
-    return getGuildSettings(database, guildId)?.standupTime ?? null;
+	return getGuildSettings(database, guildId)?.standupTime ?? null;
 }

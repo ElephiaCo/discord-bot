@@ -3,21 +3,20 @@ import Database from "better-sqlite3";
 export type StandupDatabase = Database.Database;
 
 export function createDatabase(
-    filename = process.env.DATABASE_PATH ?? "data/standup.db",
+	filename = process.env.DATABASE_PATH ?? "data/standup.db",
 ): StandupDatabase {
-    const  database = new Database(filename);
+	const database = new Database(filename);
 
-    
-    database.pragma("journal_mode = WAL");
-    database.pragma("foreign_keys = on");
+	database.pragma("journal_mode = WAL");
+	database.pragma("foreign_keys = on");
 
-    initializeDatabase(database);
+	initializeDatabase(database);
 
-    return database;
+	return database;
 }
 
 export function initializeDatabase(database: StandupDatabase): void {
-    database.exec(`
+	database.exec(`
         CREATE TABLE IF NOT EXISTS participants (
         guild_id TEXT NOT NULL,
         user_id TEXT NOT NULL,
@@ -28,6 +27,5 @@ export function initializeDatabase(database: StandupDatabase): void {
         guild_id TEXT PRIMARY KEY,
         standup_channel_id TEXT,
         standup_time TEXT
-        )`
-    )
+        )`);
 }
