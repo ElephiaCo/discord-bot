@@ -3,16 +3,16 @@ import { createDatabase } from "../../src/database/connection";
 import { runMigrations } from "../../src/database/migrate";
 
 export const test = baseTest.extend(
-    "database",
-    ({}, { onCleanup }) => {
-        const database = createDatabase(":memory:");
+	"database",
+	({ task: _task }, { onCleanup }) => {
+		const database = createDatabase(":memory:");
 
-        runMigrations(database);
+		runMigrations(database);
 
-        onCleanup(() => {
-            database.close();
-        });
+		onCleanup(() => {
+			database.close();
+		});
 
-        return database;
-    },
+		return database;
+	},
 );

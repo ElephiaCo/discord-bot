@@ -13,8 +13,8 @@ export function createDatabase(
 	return database;
 }
 
-const database = createDatabase();
-initializeDatabase(database);
+//const database = createDatabase();
+//initializeDatabase(database);
 
 export function initializeDatabase(database: StandupDatabase): void {
 	database.exec(`
