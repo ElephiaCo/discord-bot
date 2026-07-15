@@ -10,10 +10,11 @@ export function createDatabase(
 	database.pragma("journal_mode = WAL");
 	database.pragma("foreign_keys = on");
 
-	initializeDatabase(database);
-
 	return database;
 }
+
+const database = createDatabase();
+initializeDatabase(database);
 
 export function initializeDatabase(database: StandupDatabase): void {
 	database.exec(`

@@ -1,16 +1,6 @@
+import type { GuildSettings } from "../types/guild-settings";
 import type { StandupDatabase } from "./connection";
-
-interface GuildSettingsRow {
-	guild_id: string;
-	standup_channel_id: string | null;
-	standup_time: string | null;
-}
-
-export interface GuildSettings {
-	guildId: string;
-	standupChannelId: string | null;
-	standupTime: string | null;
-}
+import type { GuildSettingsRow } from "./types.ts";
 
 export function setStandupChannel(
 	database: StandupDatabase,

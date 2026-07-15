@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { StandupDatabase } from "../../src/database/connection";
-import { createDatabase } from "../../src/database/connection";
+import {describe, expect } from "vitest";
+import { test } from "../fixtures/database";
 import {
 	getStandupChannel,
 	getStandupTime,
@@ -9,30 +8,21 @@ import {
 } from "../../src/database/settings";
 
 describe("guild settings storage", () => {
-	let database: StandupDatabase;
-
-	beforeEach(() => {
-		database = createDatabase(":memory:");
-	});
-
-	afterEach(() => {
-		database.close();
-	});
-
-	it("stores and retrieves the standup channel", () => {
+	
+	test("stores and retrieves the standup channel", ({database}) => {
 		setStandupChannel(database, "guild-1", "channel-1");
 
 		expect(getStandupChannel(database, "guild-1")).toBe("channel-1");
 	});
 
-	it("updates the standup channel", () => {
+	test("updates the standup channel", ({database}) => {
 		setStandupChannel(database, "guild-1", "channel-1");
 		setStandupChannel(database, "guild-1", "channel-2");
 
 		expect(getStandupChannel(database, "guild-1")).toBe("channel-2");
 	});
 
-	it("stores and retrieves the standup time", () => {
+	test("stores and retrieves the standup time", ({database}) => {
 		setStandupTime(database, "guild-1", "09:00");
 
 		expect(getStandupTime(database, "guild-1")).toBe("09:00");

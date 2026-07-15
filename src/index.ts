@@ -1,9 +1,10 @@
 import { Client, Events, GatewayIntentBits } from "discord.js";
 import { config } from "./config";
+import { createDatabase } from "./database/connection";
+import { runMigrations } from "./database/migrate";
 
-//import { createDatabase } from "./database/connection";
-
-//const database = createDatabase();
+const database = createDatabase();
+runMigrations(database);
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds],

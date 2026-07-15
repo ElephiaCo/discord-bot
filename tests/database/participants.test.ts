@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { StandupDatabase } from "../../src/database/connection";
-import { createDatabase } from "../../src/database/connection";
+import { describe, expect } from "vitest";
+import { test } from "../fixtures/database";
 import {
 	addParticipant,
 	getParticipants,
@@ -9,24 +8,15 @@ import {
 } from "../../src/database/participants";
 
 describe("participant storage", () => {
-	let database: StandupDatabase;
 
-	beforeEach(() => {
-		database = createDatabase(":memory:");
-	});
-
-	afterEach(() => {
-		database.close();
-	});
-
-	it("adds a participant", () => {
+	test("adds a participant", ({ database }) => {
 		const added = addParticipant(database, "guild-1", "user-1");
 
 		expect(added).toBe(true);
 		expect(isParticipant(database, "guild-1", "user-1")).toBe(true);
 	});
 
-	it("does not add the same participant twice", () => {
+	test("does not add the same participant twice", ({database}) => {
 		const firstResult = addParticipant(database, "guild-1", "user-1");
 		const secondResult = addParticipant(database, "guild-1", "user-1");
 
@@ -35,7 +25,7 @@ describe("participant storage", () => {
 		expect(getParticipants(database, "guild-1")).toHaveLength(1);
 	});
 
-	it("removes a participant", () => {
+	test("removes a participant", ({database}) => {
 		addParticipant(database, "guild-1", "user-1");
 
 		const removed = removeParticipant(database, "guild-1", "user-1");
@@ -44,7 +34,7 @@ describe("participant storage", () => {
 		expect(isParticipant(database, "guild-1", "user-1")).toBe(false);
 	});
 
-	it("returns participants from only the requested guild", () => {
+	test("returns participants from only the requested guild", ({database}) => {
 		addParticipant(database, "guild-1", "user-1");
 		addParticipant(database, "guild-2", "user-2");
 
