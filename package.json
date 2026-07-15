@@ -29,11 +29,13 @@
 	},
 	"homepage": "https://github.com/ElephiaCo/discord-bot#readme",
 	"dependencies": {
+		"better-sqlite3": "^12.11.1",
 		"discord.js": "^14.26.5",
 		"dotenv": "^17.4.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3",
+		"@types/better-sqlite3": "^7.6.13",
 		"@types/node": "^26.1.1",
 		"eslint": "^10.7.0",
 		"prettier": "^3.9.5",
