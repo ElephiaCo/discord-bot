@@ -1,8 +1,7 @@
 import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
-import { config } from "./config";
 import { commandsByName } from "./commands";
+import { config } from "./config";
 import { createDatabase } from "./database/connection";
-
 
 const database = createDatabase();
 
@@ -28,20 +27,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	try {
 		await command.execute(interaction, { database });
 	} catch (error: unknown) {
-		console.error(`Failed to execute /${interaction.commandName}:`,
-			 error,
-			);
+		console.error(`Failed to execute /${interaction.commandName}:`, error);
 
-			const response = {
-				content: "Something went wrong while running this command.",
-				flags: MessageFlags.Ephemeral,
-			} as const;
+		const response = {
+			content: "Something went wrong while running this command.",
+			flags: MessageFlags.Ephemeral,
+		} as const;
 
-			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp(response);
-			} else {
-				await interaction.reply(response);
-			}
+		if (interaction.replied || interaction.deferred) {
+			await interaction.followUp(response);
+		} else {
+			await interaction.reply(response);
+		}
 	}
 });
 

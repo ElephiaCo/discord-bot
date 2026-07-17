@@ -5,22 +5,22 @@ import { config } from "./config";
 const rest = new REST().setToken(config.discordToken);
 
 async function deployCommands(): Promise<void> {
-    const commandBodies = commands.map(( command ) => command.data.toJSON());
+	const commandBodies = commands.map((command) => command.data.toJSON());
 
-    await rest.put(
-        Routes.applicationGuildCommands(
-            config.discordClientId,
-            config.discordGuildId,
-        ),
-        {
-            body: commandBodies,
-        },
-    );
+	await rest.put(
+		Routes.applicationGuildCommands(
+			config.discordClientId,
+			config.discordGuildId,
+		),
+		{
+			body: commandBodies,
+		},
+	);
 
-    console.log(`Registered ${commandBodies.length} giuld commands.`);
+	console.log(`Registered ${commandBodies.length} giuld commands.`);
 }
 
 deployCommands().catch((error: unknown) => {
-    console.error("failed to register commands:", error);
-    process.exit(1);
+	console.error("failed to register commands:", error);
+	process.exit(1);
 });
