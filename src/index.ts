@@ -2,15 +2,17 @@ import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
 import { commandsByName } from "./commands";
 import { config } from "./config";
 import { createDatabase } from "./database/connection";
+import { runMigrations } from "./database/migrate";
 
 const database = createDatabase();
+runMigrations(database);
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds],
 });
 
 client.once(Events.ClientReady, (readyClient) => {
-	console.log(`Ready! loged in as ${readyClient.user.tag}`);
+	console.log(`Ready! logged in as ${readyClient.user.tag}`);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

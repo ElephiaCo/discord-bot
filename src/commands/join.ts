@@ -4,20 +4,16 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { addParticipant } from "../database/participants";
+import { getGuildId } from "./helpers";
 import type { BotCommand, CommandContext } from "./types";
 
 async function executeJoin(
 	interaction: ChatInputCommandInteraction,
 	context: CommandContext,
 ): Promise<void> {
-	const guildId = interaction.guildId;
+	const guildId = await getGuildId(interaction);
 
 	if (!guildId) {
-		await interaction.reply({
-			content: "This command can only be used in a Discord server bro 🥀",
-			flags: MessageFlags.Ephemeral,
-		});
-
 		return;
 	}
 
@@ -34,6 +30,6 @@ async function executeJoin(
 export const joinCommand: BotCommand = {
 	data: new SlashCommandBuilder()
 		.setName("join")
-		.setDescription("join the daily standup roaster"),
+		.setDescription("join the daily standup roster"),
 	execute: executeJoin,
 };

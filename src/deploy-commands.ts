@@ -4,7 +4,7 @@ import { config } from "./config";
 
 const rest = new REST().setToken(config.discordToken);
 
-async function deployCommands(): Promise<void> {
+export async function deployCommands(): Promise<void> {
 	const commandBodies = commands.map((command) => command.data.toJSON());
 
 	await rest.put(
@@ -17,10 +17,5 @@ async function deployCommands(): Promise<void> {
 		},
 	);
 
-	console.log(`Registered ${commandBodies.length} giuld commands.`);
+	console.log(`Registered ${commandBodies.length} guild commands.`);
 }
-
-deployCommands().catch((error: unknown) => {
-	console.error("failed to register commands:", error);
-	process.exit(1);
-});

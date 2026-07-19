@@ -4,20 +4,16 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { removeParticipant } from "../database/participants";
+import { getGuildId } from "./helpers";
 import type { BotCommand, CommandContext } from "./types";
 
 async function executeLeave(
 	interaction: ChatInputCommandInteraction,
 	context: CommandContext,
 ): Promise<void> {
-	const guildId = interaction.guildId;
+	const guildId = await getGuildId(interaction);
 
 	if (!guildId) {
-		await interaction.reply({
-			content: "This command can only be used in a Discord server.",
-			flags: MessageFlags.Ephemeral,
-		});
-
 		return;
 	}
 
@@ -38,6 +34,6 @@ async function executeLeave(
 export const leaveCommand: BotCommand = {
 	data: new SlashCommandBuilder()
 		.setName("leave")
-		.setDescription("leave the daily standup roaster"),
+		.setDescription("leave the daily standup roster"),
 	execute: executeLeave,
 };
