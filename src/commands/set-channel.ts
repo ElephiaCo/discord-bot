@@ -24,13 +24,13 @@ async function executeSetChannel(
 	try {
 		setStandupChannel(context.database, guildId, channel.id);
 	} catch (error) {
-		console.error("Failed to set standup channel:", error)
+		console.error("Failed to set standup channel:", error);
 
 		await interaction.reply({
 			content: "Failed to set the standup channel. Please try again.",
 			flags: MessageFlags.Ephemeral,
 		});
-		
+
 		return;
 	}
 
