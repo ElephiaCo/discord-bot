@@ -9,7 +9,7 @@ export interface CommandContext {
 }
 
 export interface BotCommand {
-	data: SlashCommandBuilder;
+	data: Pick<SlashCommandBuilder, "name" | "toJSON">;
 	execute(
 		interaction: ChatInputCommandInteraction,
 		context: CommandContext,
