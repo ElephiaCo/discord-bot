@@ -21,16 +21,18 @@ async function executeSetChannel(
 
 	const channel = interaction.options.getChannel("channel", true);
 
-	if (channel.type !== ChannelType.GuildText) {
+	try {
+		setStandupChannel(context.database, guildId, channel.id);
+	} catch (error) {
+		console.error("Failed to set standup channel:", error)
+
 		await interaction.reply({
-			content: "Please select a public text channel.",
+			content: "Failed to set the standup channel. Please try again.",
 			flags: MessageFlags.Ephemeral,
 		});
-
+		
 		return;
 	}
-
-	setStandupChannel(context.database, guildId, channel.id);
 
 	await interaction.reply({
 		content: `Standup updates will be posted in ${channel}.`,
