@@ -68,3 +68,21 @@ export function getStandupTime(
 ): string | null {
 	return getGuildSettings(database, guildId)?.standupTime ?? null;
 }
+
+export function getConfiguredGuilds(
+	database: StandupDatabase,
+): GuildSettings[] {
+	const statement = database.prepare(`
+		SELECT guild_id, standup_channel_id, standup_time
+		FROM guild_settings
+		WHERE standup_time IS NOT NULL
+	`);
+
+	const rows = statement.all() as GuildSettingsRow[];
+
+	return rows.map((row) => ({
+		guildId: row.guild_id,
+		standupChannelId: row.standup_channel_id,
+		standupTime: row.standup_time,
+	}));
+}
