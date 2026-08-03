@@ -21,7 +21,7 @@ export function setStandupTime(
 	database: StandupDatabase,
 	guildId: string,
 	time: string,
-): void {
+): boolean {
 	const statement = database.prepare(`
         INSERT INTO guild_settings (guild_id, standup_time)
         VALUES (?, ?)
@@ -29,7 +29,9 @@ export function setStandupTime(
         DO UPDATE SET standup_time = excluded.standup_time
         `);
 
-	statement.run(guildId, time);
+	const result = statement.run(guildId, time);
+
+	return result.changes > 0;
 }
 
 export function getGuildSettings(

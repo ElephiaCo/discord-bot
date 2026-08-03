@@ -31,12 +31,30 @@ async function executeSetTime(
 		return;
 	}
 
-	setStandupTime(context.database, guildId, time);
+	try {
+		const saved = setStandupTime(context.database, guildId, time);
 
-	await interaction.reply({
-		content: `The daily standup will begin at ${time} every weekday`,
-		flags: MessageFlags.Ephemeral,
-	});
+		if (!saved) {
+			await interaction.reply({
+				content: "Failed to save standup time. Please try again.",
+				flags: MessageFlags.Ephemeral,
+			});
+
+			return;
+		}
+
+		await interaction.reply({
+			content: `The daily standup will begin at ${time} every weekday`,
+			flags: MessageFlags.Ephemeral,
+		});
+	} catch (error: unknown) {
+		console.error(`Failed to save standup time for guild ${guildId}:`, error);
+
+		await interaction.reply({
+			content: "An unexpected error occurred while saving the standup time.",
+			flags: MessageFlags.Ephemeral,
+		});
+	}
 }
 
 export const setTimeCommand: BotCommand = {

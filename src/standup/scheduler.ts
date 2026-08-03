@@ -23,35 +23,38 @@ export function startStandupScheduler({
 }: SchedulerDependencies): ScheduledTask {
 	const lastRunByGuild = new Map<string, string>();
 
+	const timeFormatter = new Intl.DateTimeFormat("en-GB", {
+		timeZone: timezone,
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	});
+
+	const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+		timeZone: timezone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	});
+
 	return cron.schedule(
 		"* * * * 1-5",
 		async () => {
 			const now = new Date();
 
-			const time = new Intl.DateTimeFormat("en-GB", {
-				timeZone: timezone,
-				hour: "2-digit",
-				minute: "2-digit",
-				hour12: false,
-			}).format(now);
-
-			const date = new Intl.DateTimeFormat("en-CA", {
-				timeZone: timezone,
-				year: "numeric",
-				month: "2-digit",
-				day: "2-digit",
-			}).format(now);
+			const currentTime = timeFormatter.format(now);
+			const currentDate = dateFormatter.format(now);
 
 			for (const settings of getConfiguredGuilds(database)) {
-				if (settings.standupTime !== time) {
+				if (settings.standupTime !== currentTime) {
 					continue;
 				}
 
-				if (lastRunByGuild.get(settings.guildId) === date) {
+				if (lastRunByGuild.get(settings.guildId) === currentDate) {
 					continue;
 				}
 
-				lastRunByGuild.set(settings.guildId, date);
+				lastRunByGuild.set(settings.guildId, currentDate);
 
 				const participants = getParticipants(database, settings.guildId);
 
@@ -59,9 +62,9 @@ export function startStandupScheduler({
 					try {
 						const user = await client.users.fetch(participant.userId);
 
-						startSession(settings.guildId, participant.userId);
-
 						await user.send(FIRST_QUESTION);
+
+						startSession(settings.guildId, participant.userId);
 					} catch (error: unknown) {
 						console.error(
 							`Failed to start standup for user ${participant.userId}:`,
