@@ -21,7 +21,7 @@ export function setStandupTime(
 	database: StandupDatabase,
 	guildId: string,
 	time: string,
-): void {
+): boolean {
 	const statement = database.prepare(`
         INSERT INTO guild_settings (guild_id, standup_time)
         VALUES (?, ?)
@@ -29,7 +29,9 @@ export function setStandupTime(
         DO UPDATE SET standup_time = excluded.standup_time
         `);
 
-	statement.run(guildId, time);
+	const result = statement.run(guildId, time);
+
+	return result.changes > 0;
 }
 
 export function getGuildSettings(
@@ -67,4 +69,22 @@ export function getStandupTime(
 	guildId: string,
 ): string | null {
 	return getGuildSettings(database, guildId)?.standupTime ?? null;
+}
+
+export function getConfiguredGuilds(
+	database: StandupDatabase,
+): GuildSettings[] {
+	const statement = database.prepare(`
+		SELECT guild_id, standup_channel_id, standup_time
+		FROM guild_settings
+		WHERE standup_time IS NOT NULL
+	`);
+
+	const rows = statement.all() as GuildSettingsRow[];
+
+	return rows.map((row) => ({
+		guildId: row.guild_id,
+		standupChannelId: row.standup_channel_id,
+		standupTime: row.standup_time,
+	}));
 }
