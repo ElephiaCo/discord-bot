@@ -1,8 +1,15 @@
-import { Client, Events, GatewayIntentBits, MessageFlags, Partials } from "discord.js";
+import {
+	Client,
+	Events,
+	GatewayIntentBits,
+	MessageFlags,
+	Partials,
+} from "discord.js";
 import { commandsByName } from "./commands";
 import { config } from "./config";
 import { createDatabase } from "./database/connection";
 import { runMigrations } from "./database/migrate";
+import { StandupSessionManager } from "./standup/sessions";
 
 const sessionManager = new StandupSessionManager();
 
@@ -60,7 +67,6 @@ client.login(config.discordToken).catch((error: unknown) => {
 	process.exit(1);
 });
 
-
 client.on(Events.MessageCreate, async (message) => {
 	if (message.author.bot) {
 		return;
@@ -80,10 +86,7 @@ client.on(Events.MessageCreate, async (message) => {
 		return;
 	}
 
-	const result = sessionManager.submitAnswer(
-		message.author.id,
-		answer,
-	);
+	const result = sessionManager.submitAnswer(message.author.id, answer);
 
 	if (!result) {
 		return;
@@ -94,7 +97,5 @@ client.on(Events.MessageCreate, async (message) => {
 		return;
 	}
 
-	await message.reply(
-		"Thank you! Your standup has been submitted.";
-	);
+	await message.reply("Thank you! Your standup has been submitted.");
 });
