@@ -1,7 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { StandupSessionManager } from "../../src/standup/sessions";
 
 describe("StandupSessionManager", () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	it("collects all three answers in order", () => {
 		const manager = new StandupSessionManager();
 
@@ -51,5 +55,16 @@ describe("StandupSessionManager", () => {
 
 		expect(manager.hasSession("user-1")).toBe(true);
 		expect(manager.hasSession("user-2")).toBe(true);
+	});
+	it("expires incomplete sessions after 24 hours", () => {
+		vi.useFakeTimers();
+		const manager = new StandupSessionManager();
+
+		manager.startSession("guild-1", "user-1");
+		expect(manager.hasSession("user-1")).toBe(true);
+
+		vi.advanceTimersByTime(24 * 60 * 60 * 1000);
+
+		expect(manager.hasSession("user-1")).toBe(false);
 	});
 });

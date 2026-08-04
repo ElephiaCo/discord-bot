@@ -17,15 +17,35 @@ export interface CompletedStandup {
 	blockers: string;
 }
 
+const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+
 export class StandupSessionManager {
 	private readonly sessions = new Map<string, StandupSession>();
+	private readonly expirationTimers = new Map<
+		string,
+		ReturnType<typeof setTimeout>
+	>();
 
 	startSession(guildId: string, userId: string): void {
+		const existingTimer = this.expirationTimers.get(userId);
+
+		if (existingTimer) {
+			clearTimeout(existingTimer);
+		}
+
 		this.sessions.set(userId, {
 			guildId,
 			userId,
 			step: "yesterday",
 		});
+
+		const timer = setTimeout(() => {
+			this.sessions.delete(userId);
+			this.expirationTimers.delete(userId);
+		}, SESSION_TTL_MS);
+
+		timer.unref();
+		this.expirationTimers.set(userId, timer);
 	}
 
 	hasSession(userId: string): boolean {
@@ -76,6 +96,13 @@ export class StandupSessionManager {
 		};
 
 		this.sessions.delete(userId);
+
+		const timer = this.expirationTimers.get(userId);
+
+		if (timer) {
+			clearTimeout(timer);
+			this.expirationTimers.delete(userId);
+		}
 
 		return {
 			completed: true,
