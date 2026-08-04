@@ -1,14 +1,38 @@
-import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
+import {
+	Client,
+	Events,
+	GatewayIntentBits,
+	MessageFlags,
+	Partials,
+} from "discord.js";
 import { commandsByName } from "./commands";
 import { config } from "./config";
 import { createDatabase } from "./database/connection";
 import { runMigrations } from "./database/migrate";
+import { startStandupScheduler } from "./standup/scheduler";
+import { StandupSessionManager } from "./standup/sessions";
 
 const database = createDatabase();
 runMigrations(database);
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds],
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.MessageContent,
+	],
+	partials: [Partials.Channel],
+});
+
+const sessionManager = new StandupSessionManager();
+
+startStandupScheduler({
+	client,
+	database,
+	startSession: (guildId, userId) => {
+		sessionManager.startSession(guildId, userId);
+	},
+	timezone: "Asia/Tokyo",
 });
 
 client.once(Events.ClientReady, (readyClient) => {
@@ -51,4 +75,44 @@ client.on(Events.Error, (error) => {
 client.login(config.discordToken).catch((error: unknown) => {
 	console.error("Failed to log in to Discord:", error);
 	process.exit(1);
+});
+
+client.on(Events.MessageCreate, async (message) => {
+	if (message.author.bot) {
+		return;
+	}
+
+	if (message.guildId !== null) {
+		return;
+	}
+
+	if (!sessionManager.hasSession(message.author.id)) {
+		return;
+	}
+
+	const answer = message.content.trim();
+
+	if (!answer) {
+		return;
+	}
+
+	try {
+		const result = sessionManager.submitAnswer(message.author.id, answer);
+
+		if (!result) {
+			return;
+		}
+
+		if (!result.completed) {
+			await message.reply(result.nextQuestion);
+			return;
+		}
+
+		await message.reply("Thank you! Your standup has been submitted.");
+	} catch (error: unknown) {
+		console.error(
+			`Failed to process standup response for user ${message.author.id}:`,
+			error,
+		);
+	}
 });
