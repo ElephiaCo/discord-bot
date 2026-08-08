@@ -9,8 +9,9 @@ import { commandsByName } from "./commands";
 import { config } from "./config";
 import { createDatabase } from "./database/connection";
 import { runMigrations } from "./database/migrate";
-import { startStandupScheduler } from "./standup/scheduler";
 import { StandupSessionManager } from "./standup/sessions";
+
+const sessionManager = new StandupSessionManager();
 
 const database = createDatabase();
 runMigrations(database);
@@ -22,17 +23,6 @@ const client = new Client({
 		GatewayIntentBits.MessageContent,
 	],
 	partials: [Partials.Channel],
-});
-
-const sessionManager = new StandupSessionManager();
-
-startStandupScheduler({
-	client,
-	database,
-	startSession: (guildId, userId) => {
-		sessionManager.startSession(guildId, userId);
-	},
-	timezone: "Asia/Tokyo",
 });
 
 client.once(Events.ClientReady, (readyClient) => {
@@ -96,23 +86,31 @@ client.on(Events.MessageCreate, async (message) => {
 		return;
 	}
 
+	const result = sessionManager.submitAnswer(message.author.id, answer);
+
+	if (!result) {
+		return;
+	}
+
+	if (!result.completed) {
+		await message.reply(result.nextQuestion);
+		return;
+	}
+
 	try {
-		const result = sessionManager.submitAnswer(message.author.id, answer);
+		await postCompletedStandup(result.standup, {
+			client,
+			database,
+		});
 
-		if (!result) {
-			return;
-		}
-
-		if (!result.completed) {
-			await message.reply(result.nextQuestion);
-			return;
-		}
-
-		await message.reply("Thank you! Your standup has been submitted.");
+		await message.reply(
+			"Thank you! Your standup has been submitted.",
+		);
 	} catch (error: unknown) {
-		console.error(
-			`Failed to process standup response for user ${message.author.id}:`,
-			error,
+		console.error("Failed to post standup:", error);
+
+		await message.reply(
+			"Your standup could not be posted. Please contact an administrator.",
 		);
 	}
 });
