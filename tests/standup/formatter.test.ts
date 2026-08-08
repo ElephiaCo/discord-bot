@@ -12,7 +12,7 @@ describe("formatStandup", () => {
 		});
 
 		expect(message).toContain("<@user-1");
-		expect(message).toContain("Implemented SQLite.");
+		expect(message).toContain("implemented SQLite.");
 		expect(message).toContain("Working on commands.");
 		expect(message).toContain("None");
 	});
