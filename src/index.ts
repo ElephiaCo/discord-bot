@@ -9,6 +9,7 @@ import { commandsByName } from "./commands";
 import { config } from "./config";
 import { createDatabase } from "./database/connection";
 import { runMigrations } from "./database/migrate";
+import { postCompletedStandup } from "./standup/post-standup";
 import { StandupSessionManager } from "./standup/sessions";
 
 const sessionManager = new StandupSessionManager();
@@ -103,9 +104,7 @@ client.on(Events.MessageCreate, async (message) => {
 			database,
 		});
 
-		await message.reply(
-			"Thank you! Your standup has been submitted.",
-		);
+		await message.reply("Thank you! Your standup has been submitted.");
 	} catch (error: unknown) {
 		console.error("Failed to post standup:", error);
 
