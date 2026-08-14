@@ -9,8 +9,11 @@ import { commandsByName } from "./commands";
 import { config } from "./config";
 import { createDatabase } from "./database/connection";
 import { runMigrations } from "./database/migrate";
+import { postCompletedStandup } from "./standup/post-standup";
 import { startStandupScheduler } from "./standup/scheduler";
 import { StandupSessionManager } from "./standup/sessions";
+
+const sessionManager = new StandupSessionManager();
 
 const database = createDatabase();
 runMigrations(database);
@@ -24,18 +27,15 @@ const client = new Client({
 	partials: [Partials.Channel],
 });
 
-const sessionManager = new StandupSessionManager();
-
-startStandupScheduler({
-	client,
-	database,
-	startSession: (guildId, userId) => {
-		sessionManager.startSession(guildId, userId);
-	},
-	timezone: "Asia/Tokyo",
-});
-
 client.once(Events.ClientReady, (readyClient) => {
+	startStandupScheduler({
+		client: readyClient,
+		database,
+		startSession: (guildId, userId) => {
+			sessionManager.startSession(guildId, userId);
+		},
+		timezone: "Asia/Tokyo",
+	});
 	console.log(`Ready! logged in as ${readyClient.user.tag}`);
 });
 
@@ -96,23 +96,29 @@ client.on(Events.MessageCreate, async (message) => {
 		return;
 	}
 
+	const result = sessionManager.submitAnswer(message.author.id, answer);
+
+	if (!result) {
+		return;
+	}
+
+	if (!result.completed) {
+		await message.reply(result.nextQuestion);
+		return;
+	}
+
 	try {
-		const result = sessionManager.submitAnswer(message.author.id, answer);
-
-		if (!result) {
-			return;
-		}
-
-		if (!result.completed) {
-			await message.reply(result.nextQuestion);
-			return;
-		}
+		await postCompletedStandup(result.standup, {
+			client,
+			database,
+		});
 
 		await message.reply("Thank you! Your standup has been submitted.");
 	} catch (error: unknown) {
-		console.error(
-			`Failed to process standup response for user ${message.author.id}:`,
-			error,
+		console.error("Failed to post standup:", error);
+
+		await message.reply(
+			"Your standup could not be posted. Please contact an administrator.",
 		);
 	}
 });
