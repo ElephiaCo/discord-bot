@@ -11,6 +11,7 @@ import { createDatabase } from "./database/connection";
 import { runMigrations } from "./database/migrate";
 import { postCompletedStandup } from "./standup/post-standup";
 import { StandupSessionManager } from "./standup/sessions";
+import { startStandupScheduler } from "./standup/scheduler";
 
 const sessionManager = new StandupSessionManager();
 
@@ -27,6 +28,14 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, (readyClient) => {
+	startStandupScheduler({
+		clietnt: readyClient,
+		database,
+		startSession: (guildId, userId) => {
+			sessionManager.startSession(guildId, userId);
+		},
+		timezone: "Asia/Tokyo",
+	});
 	console.log(`Ready! logged in as ${readyClient.user.tag}`);
 });
 
