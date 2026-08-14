@@ -29,7 +29,7 @@ const client = new Client({
 
 client.once(Events.ClientReady, (readyClient) => {
 	startStandupScheduler({
-		clietnt: readyClient,
+		client: readyClient,
 		database,
 		startSession: (guildId, userId) => {
 			sessionManager.startSession(guildId, userId);
